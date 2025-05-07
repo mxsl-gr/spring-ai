@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ai.image.ImageOptionsBuilder;
 import reactor.core.publisher.Flux;
 
 import org.springframework.ai.chat.prompt.ChatOptions;
@@ -194,7 +195,7 @@ public class ZhiPuAiRetryTests {
 			.willThrow(new TransientAiException("Transient Error 2"))
 			.willReturn(ResponseEntity.of(Optional.of(expectedResponse)));
 
-		var result = this.imageModel.call(new ImagePrompt(List.of(new ImageMessage("Image Message"))));
+		var result = this.imageModel.call(new ImagePrompt(List.of(new ImageMessage("Image Message")), ImageOptionsBuilder.builder().build()));
 
 		assertThat(result).isNotNull();
 		assertThat(result.getResult().getOutput().getUrl()).isEqualTo("url678");
@@ -207,7 +208,7 @@ public class ZhiPuAiRetryTests {
 		given(this.zhiPuAiImageApi.createImage(isA(ZhiPuAiImageRequest.class)))
 			.willThrow(new RuntimeException("Transient Error 1"));
 		assertThrows(RuntimeException.class,
-				() -> this.imageModel.call(new ImagePrompt(List.of(new ImageMessage("Image Message")))));
+				() -> this.imageModel.call(new ImagePrompt(List.of(new ImageMessage("Image Message")), ImageOptionsBuilder.builder().build())));
 	}
 
 	private class TestRetryListener implements RetryListener {
